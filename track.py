@@ -1,61 +1,68 @@
 import uuid 
+import numpy as np
 from numpy import dot
 from numpy.linalg import norm
 
-def cos_sim(a,b):
-    return dot(a, b)/(norm(a)*norm(b))
-
-class O:
-    """
-    P: object with following attribute:
-    - Bounding box
-    - Contour area
-    - Centroid
+def _distance(p1, p2):
+    return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5
     
-    ---
 
-    Goal is to trace same object between 2 frames
-    """
-    def __init__(self,x, y, w, h, cx, cy, hist):
+
+class Object:
+    def __init__(self, bbox):
         self.id = uuid.uuid4()
-        self.x, self.y, self.w, self.h = x, y, w, h
-        self.cx, self.cy = cx, cy
-        self.coor = []
-        self.status = "tracking" # online / offline
-        self.hist = hist
+        self.bbox = bbox
+        x, y, w, h = bbox
+        self.centroid = x + w//2, y+h//2
+    
+    def funcname(self, parameter_list):
+        pass
 
-    def exists(self, R, ls):
-        return 0
-        """
-        Check if object is already exist in list of online object
-        if yes: 
-            return 1, +id 
-        if no: 
-            retunr 0, None
-
-        --- 
-        Condition of existency:
-        - centroid within radius R
-        - 
-        """
-        ls = [o for o in ls if o.status=="online"]
-        # List of objects having centroid within radious of R
-        _ls = [o for o in ls if (o.x - self.x)**2 + (o.y - self.y)**2 < R**2]
-
-        if not _ls:
-            return 0, None
-        
-        _ls_sim = [cos_sim(self.hist, o.hist) for o in ls]
-        print(_ls_sim)
-
-        return 1, "Test"
+class Tracker:
+    def __init__(self):
+        self._is_inited = False
+        self.current_frame_objects = []
+        self.previous_frame_objects = []
+        self.all_objects = []
         
 
+    def fit(self, objects):
+        """
+        """
+        self.previous_frame_objects = self.current_frame_objects
+        self.current_frame_objects = objects
+
+    
+        D = np.zeros([
+                len(self.previous_frame_objects),\
+                len(self.current_frame_objects)
+            ])
+        
+        # Caculating distance matrix between tracking object and current_frame objects
+        # D \subset R^(m * n), m is number of tracking objects, n is number of current_frame objects
+
+        for i, previous_frame_object in enumerate(self.previous_frame_objects):
+            for j, current_frame_object in enumerate(self.current_frame_objects):
+                D[i,j] = _distance(previous_frame_object.centroid, \
+                    current_frame_object.centroid)
+        
+        
+        for i, object_ in enumerate(self.current_frame_objects):
+            
+            try:
+                idx = np.argmin(D[:,i])
+            
+            except Exception:
+                idx = None
+            
+            # Reassign object ID of previous frame to current_frame
+            if idx and D[idx, i] < 10:
+
+                self.current_frame_objects[i].id = self.previous_frame_objects[idx].id
+                print(idx)
 
             
-
-    
-
-if __name__ == "__main__":
-    p1 = P()
-    print(p1.id)
+            if not idx:
+                print("Not Reassigned")
+            print("---")
+        
