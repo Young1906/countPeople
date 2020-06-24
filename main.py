@@ -15,7 +15,7 @@ def preProcess(frame):
 nTracker = Tracker()
 
 def app():
-    cap = cv2.VideoCapture("dat.mp4")
+    cap = cv2.VideoCapture("videos/test.mp4")
     bg = cv2.createBackgroundSubtractorKNN()
 
     while cap.isOpened():
@@ -37,16 +37,14 @@ def app():
         bboxes = [cv2.boundingRect(c) for c in contours if cv2.contourArea(c) > 250]
         
         # initializing list of object in current frame
-        objects = [Object(bbox) for bbox in bboxes]
-        # for object in objects:
-        #     print(object.centroid)
-        nTracker.fit(objects)
+        # objects = [Object(bbox) for bbox in bboxes]
+        nTracker.fit(bboxes)
 
         # Fit this bounding box to tracker:
         # The tracker will:
         # - object matching with prv frame using distance matrix: Object Matching Based on Distance Matrix (https://sci-hub.tw/10.1109/icist.2013.6747840)      
         
-        for obj in nTracker.current_frame_objects:
+        for obj in nTracker.tracking_objects:
             x, y, w, h = obj.bbox
             cv2.rectangle(sframe, (x, y), (x+w, y+h), (0, 255, 255), 2)
             cv2.putText(sframe, str(obj.id),\
