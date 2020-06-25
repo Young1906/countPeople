@@ -1,9 +1,3 @@
----
-marp: True
----
-
-# Measuring foot traffic via camera feed
-- OpenCV
-
----
-# Implementation
+# TODO:
+- Correct bbox update based on previos bbox
+- Refactor the code + list of all params
