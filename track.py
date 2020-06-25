@@ -5,7 +5,6 @@ from numpy.linalg import norm
 
 def _distance(p1, p2):
     return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5
-    
 
 
 class Object:
@@ -15,12 +14,13 @@ class Object:
         x, y, w, h = bbox
         self.centroid = x + w//2, y+h//2
         self.status = "online"
-        self.THRESH = 10
         self.MAX_DISAPPEAR = 10
         self.c = 0
 
     def deregister(self):
-        self.status = "offline"
+        self.c+=1
+        if self.c > self.MAX_DISAPPEAR:
+            self.status = "offline"
     
     def update(self,bbox):
         self.bbox = bbox
@@ -31,7 +31,12 @@ class Tracker:
     def __init__(self):
         self._is_inited = False
         self.tracking_objects = []
-        self.THRESH = 10
+        self.THRESH = 100
+    def clean(self):
+        for obj in tracking_objects:
+            if obj.status == "offline":
+                del obj
+
 
     def fit(self, bboxes):
         """
@@ -56,45 +61,60 @@ class Tracker:
         # Caculating distance matrix between tracking object and current_frame objects
         # D \subset R^(m * n), m is number of tracking objects, n is number of current_frame objects
 
-        m, n = len(self.tracking_objects), len(bboxes)
-        D = np.zeros([m, n])
-        
         online_tracking_objects = [x for x in self.tracking_objects if
                 x.status == "online"]
+        
+        m, n = len(online_tracking_objects), len(bboxes)
+        D = np.zeros([m, n])
         
         for i, online_obj in enumerate(online_tracking_objects):
             for j, bbox in enumerate(bboxes):
                 p1 = online_obj.centroid
                 p2 = (bbox[0]+bbox[2]//2, bbox[1] + bbox[3]//2)
                 D[i, j] = _distance(p1, p2)
-
-        # Looping over tracking object:
-        # - Update tracking object bbox to the closest bbox in bboxes; remove
-        # assigned bbox from list of bboxes
-        # - if D[i, j] > thresh, don't update bbox
         
+         
         seen_i = set()
         seen_j = set()
         
-        while True:
+        terminate = False
+        
+        counter = 0
+        counter2 = 0
+
+        while not terminate:
+
             i, j = np.where(D == np.amin(D))
             i, j = i[0], j[0]
             
             if (i in seen_i) or (j in seen_j):
+                # print("skip")
+                D[i, j] = 9999
                 continue
-
+            
+            # print(D)
+            
             if D[i,j] < self.THRESH:
                 online_tracking_objects[i].update(bboxes[j])
-                D[i,j] = 999
+                D[i,j] = 9999
+                counter += 1
+                seen_i.add(i)
+                seen_j.add(j)
 
-            seen_i.add(i)
-            seen_j.add(j)
+            counter2 += 1
+            if counter >=  min(m,n) or counter2 > max(m,n):
+                terminate = True
+        
+        # index of tracking objects without match
+        unseen_i = set(range(m)) - seen_i
 
-            if len(seen_i) == m or len(seen_j)==n:
-                break
+        for i in unseen_i:
+            online_tracking_objects[i].deregister()
 
+        
+        # index of bbox without match
+        unseen_j = set(range(n)) - seen_j
+        for j in unseen_j:
+            self.tracking_objects.append(Object(bboxes[j]))
 
-
-
-
-
+        self.clean()
