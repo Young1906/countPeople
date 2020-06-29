@@ -16,24 +16,52 @@ class Object:
         self.status = "online"
         self.MAX_DISAPPEAR = 10
         self.c = 0
+        self.bboxes = []
+        self.coor =  []
+        self.counted = False
 
     def deregister(self):
         self.c+=1
         if self.c > self.MAX_DISAPPEAR:
             self.status = "offline"
     
+    def is_cross(self, thresh):
+        
+        if self.counted:
+            return None
+
+        if len(self.coor) > 1:
+            _y0 = self.coor[-2][1]
+            _y1 = self.coor[-1][1]
+            
+            if (_y1 < _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
+                self.counted = True
+                return "Up"
+            if (_y1 > _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
+                self.counted = True
+                return "Down"
+
+
+
     def update(self,bbox):
+        """
+        Naive update"
+        """
         self.bbox = bbox
         x, y, w, h = bbox
         self.centroid = x + w//2, y + h//2
+        self.bboxes.append(bbox)
+        self.coor.append((x+w//2, y+ h//2))
 
 class Tracker:
     def __init__(self):
         self._is_inited = False
         self.tracking_objects = []
         self.THRESH = 100
+        self.up = 0
+        self.down = 0
     def clean(self):
-        for obj in tracking_objects:
+        for obj in self.tracking_objects:
             if obj.status == "offline":
                 del obj
 
