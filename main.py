@@ -74,8 +74,8 @@ def app():
         
         key  = cv2.waitKey(1) & 0xFF
         
-        # while key not in [ord('q'), ord('k')]:
-        #    key = cv2.waitKey(0)
+        while key not in [ord('q'), ord('k')]:
+           key = cv2.waitKey(0)
         
         # Quit when 'q' is pressed
         if key == ord('q'):
@@ -90,4 +90,3 @@ def app():
 
 if __name__ == "__main__":
     app()
-

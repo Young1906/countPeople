@@ -7,6 +7,7 @@ def _distance(p1, p2):
     return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5
 
 
+
 class Object:
     def __init__(self, bbox):
         self.id = uuid.uuid4()
