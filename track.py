@@ -7,6 +7,7 @@ def _distance(p1, p2):
     return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5
 
 
+
 class Object:
     def __init__(self, bbox):
         self.id = uuid.uuid4()
@@ -16,6 +17,12 @@ class Object:
         self.status = "online"
         self.MAX_DISAPPEAR = 10
         self.c = 0
+        self.coor = []
+        self._bboxes = []
+        self.corrected_bboxes = []
+        self.vx, self.vy = 0, 0 
+        self.vx_, self.vy_ = [], []
+        self.ws, self.hs = [], []
 
     def deregister(self):
         self.c+=1
@@ -23,17 +30,27 @@ class Object:
             self.status = "offline"
     
     def update(self,bbox):
-        self.bbox = bbox
-        x, y, w, h = bbox
-        self.centroid = x + w//2, y + h//2
+        """
+        Predicting position of next bbox using 2 inputs:
+        - Past bboxes
+        - Current frame bbox
+        ---
+        Assumptions:
+        - The bbox size doesn't change much across frame
+        - Centroid trajectory should be smooth
+
+        """
+        pass 
+         
 
 class Tracker:
     def __init__(self):
         self._is_inited = False
         self.tracking_objects = []
         self.THRESH = 100
+
     def clean(self):
-        for obj in tracking_objects:
+        for obj in self.tracking_objects:
             if obj.status == "offline":
                 del obj
 
