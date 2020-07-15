@@ -7,6 +7,8 @@ def _distance(p1, p2):
     return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5
 
 
+def is_cross(p1, p2, p3, p4):
+    pass
 
 class Object:
     def __init__(self, bbox):
@@ -26,21 +28,22 @@ class Object:
         if self.c > self.MAX_DISAPPEAR:
             self.status = "offline"
     
-    def is_cross(self, thresh):
+    def is_cross(self, p1, p2):
         
         if self.counted:
             return None
 
         if len(self.coor) > 1:
-            _y0 = self.coor[-2][1]
-            _y1 = self.coor[-1][1]
-            
-            if (_y1 < _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
-                self.counted = True
-                return "Up"
-            if (_y1 > _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
-                self.counted = True
-                return "Down"
+            _p1 = self.coor[-2]
+            _p2 = self.coor[-1]
+
+
+            # if (_y1 < _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
+                # self.counted = True
+                # return "Up"
+            # if (_y1 > _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
+                # self.counted = True
+            #     return "Down"
 
 
 
