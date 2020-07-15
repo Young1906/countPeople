@@ -7,9 +7,23 @@ def _distance(p1, p2):
     return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5
 
 
-def is_cross(p1, p2, p3, p4):
-    pass
+def f(p, p1, p2):
+    x, y = p
+    x1, y1 = p1
+    x2, y2 = p2
+    
+    rs = (x - x1)*(y2 - y1) - (y - y1)*(x2 - x1)
+    return rs
 
+def _is_cross(p1, p2, p3, p4):
+    v34 = f(p3, p1, p2) * f(p4, p1, p2)
+    v12 = f(p1, p3, p4) * f(p2, p3, p4)
+
+    if (v12 < 0) & (v34 < 0):
+        return True
+
+    return False
+    
 class Object:
     def __init__(self, bbox):
         self.id = uuid.uuid4()
@@ -28,7 +42,7 @@ class Object:
         if self.c > self.MAX_DISAPPEAR:
             self.status = "offline"
     
-    def is_cross(self, p1, p2):
+    def is_cross(self, p1, p2, p_in):
         
         if self.counted:
             return None
@@ -36,8 +50,15 @@ class Object:
         if len(self.coor) > 1:
             _p1 = self.coor[-2]
             _p2 = self.coor[-1]
+                
+            if _is_cross(_p1, _p2, p1, p2):
+                self.counted = True
+                if _is_cross(_p2, p_in, p1, p2):
+                    return "out"
+                else:
+                    return "in"
 
-
+        return None
             # if (_y1 < _y0) and ((_y1 - thresh) * (_y0 - thresh) < 0 ):
                 # self.counted = True
                 # return "Up"
@@ -62,8 +83,8 @@ class Tracker:
         self._is_inited = False
         self.tracking_objects = []
         self.THRESH = 100
-        self.up = 0
-        self.down = 0
+        self._in = 0
+        self._out = 0
     def clean(self):
         for obj in self.tracking_objects:
             if obj.status == "offline":
