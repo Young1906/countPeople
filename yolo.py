@@ -1,10 +1,16 @@
 import cv2
 import numpy as np
 from track import Tracker, Object
-
+import requests
+import json
 
 nTracker = Tracker()
 
+def post_to_frontend(payload):
+    url = "http://0.0.0.0:5000/push_to_queue"
+    headers = {"Content-Type":"application/json"}
+    response = requests.request("POST", url, headers=headers, data=payload)
+    return response
 
 def process(img):
     img = cv2.resize(img, dsize= (0,0), fx=.5, fy=.5)
@@ -26,11 +32,18 @@ if __name__ == "__main__":
 
     # Capture Video
     cap = cv2.VideoCapture("/media/tu/Elements/avi/NVR@ch6@main_20200710085959_20200710095958.avi")
-    # import pdb; pdb.set_trace()
-    # cap = cv2.VideoCapture("videos/test.mp4")
+    
+    #skip
+    for i in range(860):
+        _, img = cap.read()
+        print(i)
+
+
+    fcounter = 0
     while cap.isOpened():
 
         ok, img = cap.read()
+        fcounter += 1
         img = process(img)
         colors = np.random.uniform(0, 255, size=(len(classes), 3))
         height, width, channels = img.shape
@@ -93,6 +106,7 @@ if __name__ == "__main__":
             
             if cross == "in":
                 nTracker._in += 1
+                
             if cross == "out":
                 nTracker._out += 1
 
@@ -116,6 +130,10 @@ if __name__ == "__main__":
                 cv2.putText(img, label, (x, y + 30), font, 1, color, 1)
                     
         cv2.imshow("Image", img)
+        payload = {"frame": fcounter, "val":nTracker._in}
+        payload = json.dumps(payload) 
+        post_to_frontend(payload)
+
         output.write(img)
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):

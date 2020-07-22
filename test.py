@@ -74,33 +74,14 @@ def Detect(frame, threshold=.5):
                 classes_.append(classes[class_id])
     
     #TODO: non-max suppression here
-    classes_, confidences, boxes = NMS(classes_, confidences, boxes, .5)
+    
     return classes_, confidences, boxes
 
-def NMS(C, S, B, N):
-    C_, S_, B_ = [],[],[]
-
-
-    while len(B) > 0:
-        i = np.argmax(S)
-        
-        c_ = C.pop(i) # Class
-        s_ = S.pop(i) # Score
-        b_ = B.pop(i) # BBox
-        
-        C_.append(c_)
-        S_.append(s_)
-        B_.append(b_)
-
-        for i, b in enumerate(B):
-            print(IoU(b_, b))
-            if IoU(b_, b) > N:
-                print("pop")
-                B.pop(i)
-                S.pop(i)
-                C.pop(i)
-
-    return C_, S_, B_
+def NonMaxSuppression(B, S, threshold):
+    """
+    TODO
+    """
+    pass
 
 def IoU(b1, b2):
     x1, y1, w1, h1 = b1
