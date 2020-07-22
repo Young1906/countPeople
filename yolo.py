@@ -24,9 +24,9 @@ if __name__ == "__main__":
     output = cv2.VideoWriter("output.avi", cv2.VideoWriter_fourcc(*'XVID'), 20,
             (960, 540))
 
-
     # Capture Video
-    cap = cv2.VideoCapture("videos/NVR@ch6@main_20200710085959_20200710095958.avi")
+    cap = cv2.VideoCapture("/media/tu/Elements/avi/NVR@ch6@main_20200710085959_20200710095958.avi")
+    # import pdb; pdb.set_trace()
     # cap = cv2.VideoCapture("videos/test.mp4")
     while cap.isOpened():
 
