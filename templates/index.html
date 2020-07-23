@@ -65,7 +65,11 @@
                         scaleLabel: {
                             display: true,
                             labelString: 'Value'
+                        },
+                        ticks: {
+                            beginAtZero: true
                         }
+
                     }]
                 }
             }
@@ -79,7 +83,7 @@
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (config.data.labels.length === 20) {
+            if (config.data.labels.length === 1500) {
                 config.data.labels.shift();
                 config.data.datasets[0].data.shift();
             }

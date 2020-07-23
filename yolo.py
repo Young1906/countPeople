@@ -31,8 +31,11 @@ if __name__ == "__main__":
             (960, 540))
 
     # Capture Video
-    cap = cv2.VideoCapture("/media/tu/Elements/avi/NVR@ch6@main_20200710085959_20200710095958.avi")
-    
+    # cap
+    # = cv2.VideoCapture("/media/tu/Elements/avi/NVR@ch6@main_20200710085959_20200710095958.avi")
+    fn = "videos/NVR@ch6@main_20200710085959_20200710095958.avi"
+    cap = cv2.VideoCapture(fn)
+ 
     #skip
     for i in range(860):
         _, img = cap.read()
@@ -41,9 +44,13 @@ if __name__ == "__main__":
 
     fcounter = 0
     while cap.isOpened():
-
+        
         ok, img = cap.read()
         fcounter += 1
+        
+        if (fcounter % 6) != 0:
+            continue
+
         img = process(img)
         colors = np.random.uniform(0, 255, size=(len(classes), 3))
         height, width, channels = img.shape
@@ -106,9 +113,15 @@ if __name__ == "__main__":
             
             if cross == "in":
                 nTracker._in += 1
+                with open("data.csv", "a") as f:
+                    f.write(f"{fn},{fcounter},IN\n")
+
                 
             if cross == "out":
                 nTracker._out += 1
+                with open("data.csv", "a") as f:
+                    f.write(f"{fn},{fcounter},OUT\n")
+
 
         cv2.line(img, (490, 308), (613, 532), (0, 255, 255), 2)
         cv2.putText(img, "In", (396, 467), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,
@@ -130,7 +143,7 @@ if __name__ == "__main__":
                 cv2.putText(img, label, (x, y + 30), font, 1, color, 1)
                     
         cv2.imshow("Image", img)
-        payload = {"frame": fcounter, "val":nTracker._in}
+        payload = {"frame": fcounter//20, "val":nTracker._in}
         payload = json.dumps(payload) 
         post_to_frontend(payload)
 

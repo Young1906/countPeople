@@ -82,7 +82,7 @@ class Tracker:
     def __init__(self):
         self._is_inited = False
         self.tracking_objects = []
-        self.THRESH = 100
+        self.THRESH = 200
         self._in = 0
         self._out = 0
     def clean(self):
