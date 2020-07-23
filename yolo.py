@@ -3,6 +3,11 @@ import numpy as np
 from track import Tracker, Object
 import requests
 import json
+from flask_opencv_streamer.streamer import Streamer 
+
+port = 3030
+require_login = False
+streamer = Streamer(port, require_login)
 
 nTracker = Tracker()
 
@@ -11,6 +16,7 @@ def post_to_frontend(payload):
     headers = {"Content-Type":"application/json"}
     response = requests.request("POST", url, headers=headers, data=payload)
     return response
+
 
 def process(img):
     img = cv2.resize(img, dsize= (0,0), fx=.5, fy=.5)
@@ -31,17 +37,12 @@ if __name__ == "__main__":
             (960, 540))
 
     # Capture Video
-    # cap
+    # cap:
     # = cv2.VideoCapture("/media/tu/Elements/avi/NVR@ch6@main_20200710085959_20200710095958.avi")
     fn = "videos/NVR@ch6@main_20200710085959_20200710095958.avi"
     cap = cv2.VideoCapture(fn)
  
     #skip
-    for i in range(860):
-        _, img = cap.read()
-        print(i)
-
-
     fcounter = 0
     while cap.isOpened():
         
@@ -49,7 +50,7 @@ if __name__ == "__main__":
         fcounter += 1
         
         if (fcounter % 6) != 0:
-            continue
+             continue
 
         img = process(img)
         colors = np.random.uniform(0, 255, size=(len(classes), 3))
@@ -146,8 +147,9 @@ if __name__ == "__main__":
         payload = {"frame": fcounter//20, "val":nTracker._in}
         payload = json.dumps(payload) 
         post_to_frontend(payload)
-
+        
         output.write(img)
+
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):
             break

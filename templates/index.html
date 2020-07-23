@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Creating Real-Time Charts with Flask</title>
+    <title>Store traffic live dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
 </head>
 <body>
+<h1 class="card-body" style="text-align:center"> WALK IN TRAFFIC </h1>
+<img id="bg" src="localhost:3030" />
 <div class="container">
     <div class="row">
         <div class="col-12">
@@ -31,7 +33,7 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: "Random Dataset",
+                    label: "Walk In",
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
                     data: [],
@@ -42,7 +44,7 @@
                 responsive: true,
                 title: {
                     display: true,
-                    text: 'Creating Real-Time Charts with Flask'
+                    text: 'Live traffic feed'
                 },
                 tooltips: {
                     mode: 'index',

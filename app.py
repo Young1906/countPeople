@@ -9,7 +9,7 @@ from queue import Queue
 def frontend():
     app = Flask(__name__)
     q = Queue()
-
+    q2 = Queue()
     @app.route('/')
     def index():
         # return f"{q.qsize()}"
@@ -30,6 +30,7 @@ def frontend():
                 yield f"data:{json_data}\n\n"
 
         return Response(generate_random_data(), mimetype='text/event-stream')
+    
 
     @app.route("/push_to_queue", methods=["POST"])
     def push_to_queue():
@@ -44,18 +45,3 @@ if __name__ == '__main__':
 
 
 
-"""
-POST 
-import requests
-
-url = "localhost:5000/push_to_queue"
-
-payload = "{\"val\": 10}"
-headers = {
-  'Content-Type': 'application/json'
-}
-
-response = requests.request("POST", url, headers=headers, data = payload)
-
-print(response.text.encode('utf8'))
-"""
