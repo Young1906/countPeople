@@ -74,7 +74,6 @@ def Detect(frame, threshold=.5):
                 classes_.append(classes[class_id])
     
     #TODO: non-max suppression here
-    
     return classes_, confidences, boxes
 
 def NonMaxSuppression(B, S, threshold):

@@ -29,7 +29,7 @@ class Object:
         self.id = uuid.uuid4()
         self.bbox = bbox
         x, y, w, h = bbox
-        self.centroid = x + w//2, y+h//2
+        self.centroid = x + w//2, y+h
         self.status = "online"
         self.MAX_DISAPPEAR = 10
         self.c = 0
@@ -82,7 +82,7 @@ class Tracker:
     def __init__(self):
         self._is_inited = False
         self.tracking_objects = []
-        self.THRESH = 200
+        self.THRESH = 100
         self._in = 0
         self._out = 0
     def clean(self):

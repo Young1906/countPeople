@@ -3,11 +3,6 @@ import numpy as np
 from track import Tracker, Object
 import requests
 import json
-from flask_opencv_streamer.streamer import Streamer 
-
-port = 3030
-require_login = False
-streamer = Streamer(port, require_login)
 
 nTracker = Tracker()
 
@@ -49,7 +44,7 @@ if __name__ == "__main__":
         ok, img = cap.read()
         fcounter += 1
         
-        if (fcounter % 6) != 0:
+        if (fcounter % 3) != 0:
              continue
 
         img = process(img)
@@ -100,35 +95,52 @@ if __name__ == "__main__":
 
         nTracker.fit(_bboxes)
         
+        p1 = (160, 280)
+        p2 = (300, 394)
+        p12in = (115, 383)
+        p3 = (883, 435)
+        p23in = (558, 531)
+
+
         for obj in nTracker.tracking_objects:
             if obj.status == "online":
-               if len(obj.bboxes) > 1:
+                if len(obj.bboxes) > 1:
                     for i in range(1, len(obj.bboxes)):
                         x1, y1, w1, h1 = obj.bboxes[i - 1]
                         x2, y2, w2, h2 = obj.bboxes[i]
 
-                        # cv2.line(img, (x1+ w1//2, y1 + h1//2), (x2+w2//2,
-                        #     y2+h2//2), (0, 255, 0), 2)
+                        cv2.line(img, (x1+ w1//2, y1 + h1//2),\
+                                (x2+w2//2, y2+h2//2), (0, 255, 0), 2) 
+                cross = obj.is_cross(p1, p2, p12in)
+                cross2 = obj.is_cross(p2,p3, p23in)
             
-            cross = obj.is_cross((490, 308), (613, 532), (396, 467))
-            
-            if cross == "in":
-                nTracker._in += 1
-                with open("data.csv", "a") as f:
-                    f.write(f"{fn},{fcounter},IN\n")
+                if cross == "in":
+                    nTracker._in += 1
+                    with open("data.csv", "a") as f:
+                        f.write(f"{fn},{fcounter},IN,1\n")
 
-                
-            if cross == "out":
-                nTracker._out += 1
-                with open("data.csv", "a") as f:
-                    f.write(f"{fn},{fcounter},OUT\n")
+                if cross == "out":
+                    nTracker._out += 1
+                    with open("data.csv", "a") as f:
+                        f.write(f"{fn},{fcounter},OUT,1\n")
 
+                if cross2 == "in":
+                    nTracker._in += 1
+                    with open("data.csv", "a") as f:
+                        f.write(f"{fn},{fcounter},IN,2\n")
 
-        cv2.line(img, (490, 308), (613, 532), (0, 255, 255), 2)
-        cv2.putText(img, "In", (396, 467), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,
-            0 ,255), 1) 
+                if cross2 == "out":
+                    nTracker._out += 1
+                    with open("data.csv", "a") as f:
+                        f.write(f"{fn},{fcounter},OUT,2\n")
+
+        cv2.line(img, p1, p2, (0, 255, 255), 2)
+        cv2.putText(img, "In1", p12in, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0 ,255), 1) 
+        
+        cv2.line(img, p2, p3, (0, 255, 255), 2)
+        cv2.putText(img, "In2", p23in, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0 ,255), 1) 
+        
         cv2.putText(img, f"In: {nTracker._in}", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-
         cv2.putText(img, f"Out: {nTracker._out}", (0, 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
 
 
@@ -144,9 +156,9 @@ if __name__ == "__main__":
                 cv2.putText(img, label, (x, y + 30), font, 1, color, 1)
                     
         cv2.imshow("Image", img)
-        payload = {"frame": fcounter//20, "val":nTracker._in}
-        payload = json.dumps(payload) 
-        post_to_frontend(payload)
+        payload = {"fram# e": fcounter//20, "val":nTracker._in}
+        # payload = json.dumps(payload) 
+        # post_to_frontend(payload)
         
         output.write(img)
 
